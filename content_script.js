@@ -134,7 +134,7 @@ function GenerateChatHTML(message_details) {
 
     base_HTML += "</div>\
             </div>\
-        </div>\"
+        </div>"
 
     console.log(base_HTML)
 
