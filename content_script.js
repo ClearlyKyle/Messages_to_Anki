@@ -1,21 +1,26 @@
 /* This runs on all "youtube.com/watch" web pages */
 console.log("----- [content_script.js] LOADED");
 
-if (window.location.href.includes("instagram.com/direct")) {
+if (window.location.href.includes("instagram.com/direct"))
+{
     console.log("Adding Right Click option to Instagram messenger")
 
-    chrome.runtime.sendMessage({ greeting: "ADD" }, function (response) {
+    chrome.runtime.sendMessage({ greeting: "ADD" }, function (response)
+    {
         console.log(response.farewell);
     });
 }
 
-chrome.extension.onMessage.addListener(function (message, sender, callback) {
-    if (message.functiontoInvoke == "InstagramMessages") {
+chrome.extension.onMessage.addListener(function (message, sender, callback)
+{
+    if (message.functiontoInvoke == "InstagramMessages")
+    {
         InstagramMessages();
     }
 });
 
-function InstagramMessages() {
+function InstagramMessages()
+{
     console.log("[InstagramMessages] Start...")
 
     const selection = window.getSelection()
@@ -25,37 +30,35 @@ function InstagramMessages() {
     let message_current_text = parent_of_selected.innerText
     message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word + "</b>");
 
-    console.log({ message_current_text })
-
     const root_element = parent_of_selected.parentNode.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
 
     let messages = [];
-    let node_above = root_element.previousSibling
+    let node_above = root_element
 
     const message_side = getComputedStyle(root_element.childNodes[1].children[0].children[0]).alignSelf;
 
     messages.push([message_current_text, message_side])
 
     // qF0y9
-
-    for (let index = 0; index < 3; index++) {
+    let number_of_messages_before = 3;
+    let count = 0;
+    while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before && node_above.childElementCount > 1)
+    {
         const node_with_css = node_above.childNodes[1].children[0].children[0]
         const chat_side = getComputedStyle(node_with_css).alignSelf;
 
         messages.push([node_above.innerText, chat_side])
-
-        node_above = node_above.previousSibling
+        count += 1;
     }
 
-    //messages.forEach(e => { console.log(e) });
-
-
+    console.log(messages)
     console.log("[InstagramMessages] End")
 
     GenerateChatHTML(messages)
 }
 
-function GenerateChatHTML(message_details) {
+function GenerateChatHTML(messages)
+{
     console.log("[GenerateChatHTML] Start...")
 
     var base_HTML = "<style>\
@@ -64,6 +67,7 @@ function GenerateChatHTML(message_details) {
             margin: 0 auto;\
             font-family: Red hat Display, sans-serif;\
             font-weight: 400;\
+            text-align: left;\
             line-height: 1.5em;\
             letter-spacing: 0.025em;\
             color: #333;\
@@ -114,40 +118,36 @@ function GenerateChatHTML(message_details) {
     //<div class="message right"></div>
     //<div class="message left"></div>
 
-    for (var i = message_details.length - 1; i >= 0; i--) {
-        if (m[i][1] === 'flex-start') {
-            base_HTML += "<div class=\"message left\">" + m[i][0] + "</div>"
+    // add the messages in reverse order
+    for (var i = messages.length - 1; i >= 0; i--)
+    {
+        if (messages[i][1] === 'flex-start')
+        {
+            base_HTML += "<div class=\"message left\">" + messages[i][0] + "</div>"
         }
-        else if (m[i][1] === 'flex-end') {
-            base_HTML += "<div class=\"message right\">" + m[i][0] + "</div>"
+        else if (messages[i][1] === 'flex-end')
+        {
+            base_HTML += "<div class=\"message right\">" + messages[i][0] + "</div>"
         }
     }
-
-    //message_details.forEach(m => {
-    //    if (m[1] === 'flex-start') {
-    //        base_HTML += "<div class=\"message left\">" + m[0] + "</div>"
-    //    }
-    //    else if (m[1] === 'flex-end') {
-    //        base_HTML += "<div class=\"message right\">" + m[0] + "</div>"
-    //    }
-    //});
 
     base_HTML += "</div>\
             </div>\
         </div>"
 
-    console.log(base_HTML)
+    //console.log(base_HTML)
 
-    sendToAnki(message_details, base_HTML)
+    sendToAnki(messages, base_HTML)
 }
 
 
-function sendToAnki(messages, chat_message_HTML) {
-
+function sendToAnki(messages, chat_message_HTML)
+{
     console.log("Sending to Anki...")
 
     chrome.storage.local.get(['ankiDeckNameSelected', 'ankiNoteNameSelected', 'ankiFieldChatImage', 'ankiSelectedMessage', 'ankiConnectUrl'],
-        ({ ankiDeckNameSelected, ankiNoteNameSelected, ankiFieldChatImage, ankiSelectedMessage, ankiConnectUrl }) => {
+        ({ ankiDeckNameSelected, ankiNoteNameSelected, ankiFieldChatImage, ankiSelectedMessage, ankiConnectUrl }) =>
+        {
             url = ankiConnectUrl || 'http://localhost:8765';
             model = ankiNoteNameSelected || 'Basic';
             deck = ankiDeckNameSelected || 'Default';
@@ -191,16 +191,19 @@ function sendToAnki(messages, chat_message_HTML) {
                 body: JSON.stringify(permission_data),
             })
                 .then((res) => res.json())
-                .then((data) => {
+                .then((data) =>
+                {
                     console.log(data);
                     fetch(url, {
                         method: "POST",
                         body: JSON.stringify(body),
                     })
                         .then((res) => res.json())
-                        .then((data) => {
+                        .then((data) =>
+                        {
                             console.log("Fetch Return:")
-                            if (data.result === null) {
+                            if (data.result === null)
+                            {
                                 alert("Error!\n" + data.error)
                             }
                             console.log("Sucess")
