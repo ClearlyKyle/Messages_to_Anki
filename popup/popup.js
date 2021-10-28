@@ -1,43 +1,72 @@
 
-var fetchOptions = function (selectId, url, action, params = {}) {
+var fetchOptions = function (selectId, url, action, params = {})
+{
 	var selectEl = document.getElementById(selectId);
 
-	return new Promise((resolve, reject) => {
-		chrome.storage.local.get(selectId, (stored) => {
-
+	return new Promise((resolve, reject) =>
+	{
+		chrome.storage.local.get(selectId, (stored) =>
+		{
 			var storedVal = stored[selectId] || 'Basic';
 
-			fetch(url, { method: "POST", body: JSON.stringify({ "action": action, "params": params }) }).then(r => r.json()).then(data => {
-				data.forEach((item) => {
+			fetch(url, { method: "POST", body: JSON.stringify({ "action": action, "params": params }) }).then(r => r.json()).then(data =>
+			{
+				data.forEach((item) =>
+				{
 					e = document.createElement("option");
 					e.value = item;
 					e.text = item;
 					if (item === storedVal) e.selected = true;
 					selectEl.appendChild(e);
 				})
-				if (action === "modelFieldNames") {
+				if (action === "modelFieldNames")
+				{
 					e = document.createElement("option");
 					e.value = "";
 					e.text = "";
 					selectEl.add(e);
 				}
-
 			}).then(r => resolve(r)).catch(e => console.log(e));
 		});
 	});
 }
 
-var saveOption = function (selectId) {
+var saveOption = function (selectId)
+{
 	var selectEl = document.getElementById(selectId);
 	return chrome.storage.local.set({ [selectId]: selectEl.value })
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+function AddToDropDown(elementID)
+{
+	var selectEl = document.getElementById(elementID);
+
+	chrome.storage.local.get(elementID, (stored) =>
+	{
+		var storedVal = stored[elementID];
+		console.log(storedVal)
+		for (var i = 0; i <= 10; i++)
+		{
+			var opt = document.createElement('option');
+			opt.value = i;
+			opt.innerHTML = i;
+			if (i.toString() === storedVal) opt.selected = true;
+			selectEl.appendChild(opt);
+		}
+	})
+}
+
+document.addEventListener("DOMContentLoaded", function ()
+{
 	var urlEl = document.getElementById('ankiConnectUrl');
 	var model_Name = document.getElementById('ankiNoteNameSelected');
 	var submit_button = document.getElementById('saveAnkiBtn');
 
-	chrome.storage.local.get('ankiConnectUrl', ({ ankiConnectUrl }) => {
+	AddToDropDown("messagesBefore");
+	AddToDropDown("messagesAfter");
+
+	chrome.storage.local.get('ankiConnectUrl', ({ ankiConnectUrl }) =>
+	{
 		var url = ankiConnectUrl || 'http://localhost:8765';
 		urlEl.classList.add('focused');
 		urlEl.value = url;
@@ -46,7 +75,9 @@ document.addEventListener("DOMContentLoaded", function () {
 			/* Get All Deck names and all Note Types */
 			fetchOptions('ankiDeckNameSelected', url, 'deckNames'),
 			fetchOptions('ankiNoteNameSelected', url, 'modelNames') /* note type */
-		]).then(() => {
+
+		]).then(() =>
+		{
 
 			/* Then we get all the Field's for the selected Note type */
 			/*      dont change 'modelFieldNames' - this is for ankiconnect */
@@ -56,19 +87,24 @@ document.addEventListener("DOMContentLoaded", function () {
 			fetchOptions('ankiFieldChatImage', url, 'modelFieldNames', { "modelName": model_Name_value })
 			fetchOptions('ankiSelectedMessage', url, 'modelFieldNames', { "modelName": model_Name_value })
 
-			model_Name.addEventListener("change", function () {
+			model_Name.addEventListener("change", function ()
+			{
 				var array = [
 					"ankiFieldChatImage",
 					"ankiSelectedMessage",
+					"messagesBefore"
 				];
 
-				array.forEach((item) => {
+				array.forEach((item) =>
+				{
 					document.getElementById(item).length = 0;
 					fetchOptions(item, url, 'modelFieldNames', { "modelName": model_Name.value });
 				})
 			})
 			// saveAnkiBtn.classList.disabled = true;
-			submit_button.addEventListener('click', (e) => {
+			submit_button.addEventListener('click', (e) =>
+			{
+				/* must be same ID as html tag */
 				Promise.all([
 					saveOption('ankiConnectUrl'),
 
@@ -77,6 +113,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 					saveOption('ankiFieldChatImage'),
 					saveOption('ankiSelectedMessage'),
+
+					saveOption('messagesBefore'),
+					saveOption('messagesAfter')
 				])
 					.then(() => alert(`Options saved!`))
 					.catch(error => alert(`Cannot save options: ${error}`))

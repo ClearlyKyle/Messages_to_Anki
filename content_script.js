@@ -1,6 +1,9 @@
 /* This runs on all "youtube.com/watch" web pages */
 console.log("----- [content_script.js] LOADED");
 
+// TODO: Add success notification
+// TODO: add option for number of messages before and after selected
+
 if (window.location.href.includes("instagram.com/direct"))
 {
     console.log("Adding Right Click option to Instagram messenger")

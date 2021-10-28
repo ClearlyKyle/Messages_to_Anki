@@ -15,26 +15,37 @@ console.log("----- [backgound.js] LOADED");
 //	}
 //);
 
+const showOnPages = [
+	"*://*.instagram.com/direct/*",
+	"*://*.whatsapp.com/*",
+];
+
+
 chrome.runtime.onMessage.addListener(
-	function (request, sender, sendResponse) {
+	function (request, sender, sendResponse)
+	{
 		console.log(sender.tab ?
 			"from a content script:" + sender.tab.url :
 			"from the extension");
-		if (request.greeting === "ADD") {
+
+		if (request.greeting === "ADD")
+		{
 			chrome.contextMenus.create({
 				title: 'ANKI',
-				onclick: function (e) {
+				onclick: function (e)
+				{
 					chrome.tabs.query({
 						"active": true,
 						"currentWindow": true
-					}, function (tabs) {
+					}, function (tabs)
+					{
 						chrome.tabs.sendMessage(tabs[0].id, {
 							"functiontoInvoke": "InstagramMessages"
 						});
 					});
 				},
-				contexts: ["selection"]
-
+				contexts: ["selection"],
+				documentUrlPatterns: showOnPages
 			}, () => { });
 
 			sendResponse({ status: "complete" });
