@@ -4,15 +4,19 @@ console.log("----- [content_script.js] LOADED");
 // TODO: Add success notification
 // TODO: add option for number of messages before and after selected
 
-if (window.location.href.includes("instagram.com/direct"))
-{
-    console.log("Adding Right Click option to Instagram messenger")
 
-    chrome.runtime.sendMessage({ greeting: "ADD" }, function (response)
-    {
-        console.log(response.farewell);
-    });
-}
+//chrome.runtime.sendMessage({ greeting: "ADD" }, function (response)
+//{
+//    console.log(response.farewell);
+//});
+
+
+//if (window.location.href.includes("instagram.com/direct"))
+//{
+//    console.log("Adding Right Click option to Instagram messenger")
+
+
+//}
 
 chrome.extension.onMessage.addListener(function (message, sender, callback)
 {

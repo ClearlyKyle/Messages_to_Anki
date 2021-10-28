@@ -7,7 +7,8 @@
   "permissions": [
     "storage",
     "notifications",
-    "contextMenus"
+    "contextMenus",
+    "tabs"
   ],
   "content_scripts": [
     {
@@ -16,9 +17,9 @@
         "content_script.js"
       ],
       "matches": [
-        "*://*.instagram.com/*"
+        "*://*.instagram.com/direct/*"
       ],
-      "run_at": "document_end"
+      "run_at": "document_idle"
     }
   ],
   "browser_action": {

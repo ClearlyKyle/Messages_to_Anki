@@ -1,54 +1,43 @@
 /* backgound.js */
 console.log("----- [backgound.js] LOADED");
 
-//chrome.runtime.onMessage.addListener(
-//	function (response, sender, sendResponse) {
-//		console.log("background message recieved")
-//		var opt = {
-//			type: "basic",
-//			title: response.reason,
-//			message: response.message,
-//			iconUrl: "/icons/256x256.png"
-//		}
-//		chrome.notifications.create("message", opt, (e) => console.log(e));
-//		sendResponse();
-//	}
-//);
-
 const showOnPages = [
 	"*://*.instagram.com/direct/*",
 	"*://*.whatsapp.com/*",
 ];
 
+function AddRightClickOption()
+{
+	console.log("[backgound.js] Adding Right Click Option");
 
-chrome.runtime.onMessage.addListener(
-	function (request, sender, sendResponse)
-	{
-		console.log(sender.tab ?
-			"from a content script:" + sender.tab.url :
-			"from the extension");
-
-		if (request.greeting === "ADD")
+	chrome.contextMenus.create({
+		title: 'ANKI',
+		onclick: function (e)
 		{
-			chrome.contextMenus.create({
-				title: 'ANKI',
-				onclick: function (e)
+			chrome.tabs.query({
+				"active": true,
+				"currentWindow": true
+			}, function (tabs)
+			{
+				//console.log(tabs[0].url)
+				const url = tabs[0].url
+				if (url.includes("instagram.com/direct"))
 				{
-					chrome.tabs.query({
-						"active": true,
-						"currentWindow": true
-					}, function (tabs)
-					{
-						chrome.tabs.sendMessage(tabs[0].id, {
-							"functiontoInvoke": "InstagramMessages"
-						});
-					});
-				},
-				contexts: ["selection"],
-				documentUrlPatterns: showOnPages
-			}, () => { });
+					message = "InstagramMessages"
+				}
+				else if (url.includes("whatsapp.com"))
+				{
+					message = "WhatsappMessages"
+				}
+				console.log("Sending message: " + message)
+				chrome.tabs.sendMessage(tabs[0].id, {
+					"functiontoInvoke": message
+				});
+			});
+		},
+		contexts: ["selection"],
+		documentUrlPatterns: showOnPages
+	}, () => { });
+}
 
-			sendResponse({ status: "complete" });
-		}
-	}
-);
+AddRightClickOption()
