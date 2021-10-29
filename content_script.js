@@ -4,20 +4,6 @@ console.log("----- [content_script.js] LOADED");
 // TODO: Add success notification
 // TODO: add option for number of messages before and after selected
 
-
-//chrome.runtime.sendMessage({ greeting: "ADD" }, function (response)
-//{
-//    console.log(response.farewell);
-//});
-
-
-//if (window.location.href.includes("instagram.com/direct"))
-//{
-//    console.log("Adding Right Click option to Instagram messenger")
-
-
-//}
-
 chrome.extension.onMessage.addListener(function (message, sender, callback)
 {
     if (message.functiontoInvoke == "InstagramMessages")
@@ -28,10 +14,13 @@ chrome.extension.onMessage.addListener(function (message, sender, callback)
 
 function InstagramMessages()
 {
-    console.log("[InstagramMessages] Start...")
+    console.log("\n[InstagramMessages] Start...")
 
     const selection = window.getSelection()
     const selected_word = selection.toString()
+
+
+
 
     const parent_of_selected = selection.anchorNode.parentNode
     let message_current_text = parent_of_selected.innerText
@@ -46,25 +35,27 @@ function InstagramMessages()
 
     messages.push([message_current_text, message_side])
 
-    // qF0y9
-    let number_of_messages_before = 3;
-    let count = 0;
-    while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before && node_above.childElementCount > 1)
+    // loop through X number of messages before (up direction in chat)
+    chrome.storage.local.get("messagesBefore", (stored) =>
     {
-        const node_with_css = node_above.childNodes[1].children[0].children[0]
-        const chat_side = getComputedStyle(node_with_css).alignSelf;
+        const number_of_messages_before = Number(stored["messagesBefore"]);
 
-        messages.push([node_above.innerText, chat_side])
-        count += 1;
-    }
+        let count = 0;
+        while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before && node_above.childElementCount > 1)
+        {
+            const node_with_css = node_above.childNodes[1].children[0].children[0]
+            const chat_side = getComputedStyle(node_with_css).alignSelf;
 
-    console.log(messages)
-    console.log("[InstagramMessages] End")
+            messages.push([node_above.innerText, chat_side])
+            count += 1;
+        }
+        console.log(messages)
 
-    GenerateChatHTML(messages)
+        GenerateChatHTML(messages)
+    })
 }
 
-function GenerateChatHTML(messages)
+function GenerateChatHTML(saved_messages)
 {
     console.log("[GenerateChatHTML] Start...")
 
@@ -126,15 +117,15 @@ function GenerateChatHTML(messages)
     //<div class="message left"></div>
 
     // add the messages in reverse order
-    for (var i = messages.length - 1; i >= 0; i--)
+    for (var i = saved_messages.length - 1; i >= 0; i--)
     {
-        if (messages[i][1] === 'flex-start')
+        if (saved_messages[i][1] === 'flex-start')
         {
-            base_HTML += "<div class=\"message left\">" + messages[i][0] + "</div>"
+            base_HTML += "<div class=\"message left\">" + saved_messages[i][0] + "</div>"
         }
-        else if (messages[i][1] === 'flex-end')
+        else if (saved_messages[i][1] === 'flex-end')
         {
-            base_HTML += "<div class=\"message right\">" + messages[i][0] + "</div>"
+            base_HTML += "<div class=\"message right\">" + saved_messages[i][0] + "</div>"
         }
     }
 
@@ -144,7 +135,7 @@ function GenerateChatHTML(messages)
 
     //console.log(base_HTML)
 
-    sendToAnki(messages, base_HTML)
+    sendToAnki(saved_messages, base_HTML)
 }
 
 

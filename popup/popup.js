@@ -92,7 +92,6 @@ document.addEventListener("DOMContentLoaded", function ()
 				var array = [
 					"ankiFieldChatImage",
 					"ankiSelectedMessage",
-					"messagesBefore"
 				];
 
 				array.forEach((item) =>
