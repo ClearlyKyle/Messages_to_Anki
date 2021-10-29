@@ -3,6 +3,7 @@ console.log("----- [content_script.js] LOADED");
 
 // TODO: Add success notification
 // TODO: add option for number of messages before and after selected
+// TODO: remove flex tags for HTML construction, make messages pass in either left/right
 
 chrome.extension.onMessage.addListener(function (message, sender, callback)
 {
@@ -10,17 +11,21 @@ chrome.extension.onMessage.addListener(function (message, sender, callback)
     {
         InstagramMessages();
     }
+    else if (message.functiontoInvoke == "HelloTalkMessages")
+    {
+        HelloTalkMessages();
+    }
 });
 
+//
+// INSTAGRAM 
+//
 function InstagramMessages()
 {
     console.log("\n[InstagramMessages] Start...")
 
     const selection = window.getSelection()
     const selected_word = selection.toString()
-
-
-
 
     const parent_of_selected = selection.anchorNode.parentNode
     let message_current_text = parent_of_selected.innerText
@@ -49,6 +54,61 @@ function InstagramMessages()
             messages.push([node_above.innerText, chat_side])
             count += 1;
         }
+        console.log(messages)
+
+        GenerateChatHTML(messages)
+    })
+}
+
+//
+// HELLOTALK
+//
+function HelloTalkMessages()
+{
+    console.log("\n[HelloTalkMessages] Start...")
+
+    const selection = window.getSelection()
+    const selected_word = selection.toString()
+
+    const parent_of_selected = selection.anchorNode.parentNode
+    let message_current_text = parent_of_selected.innerText
+    message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word + "</b>");
+
+    const root_element = parent_of_selected.parentNode.parentElement.parentElement.parentElement;
+
+    let messages = [];
+    let node_above = root_element
+
+    const message_side = getComputedStyle(root_element.children[0]).flexDirection;
+
+    messages.push([message_current_text, message_side])
+
+    // loop through X number of messages before (up direction in chat)
+    chrome.storage.local.get("messagesBefore", (stored) =>
+    {
+        const number_of_messages_before = Number(stored["messagesBefore"]);
+
+        let count = 0;
+        while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before)
+        {
+            const node_with_css = node_above.childNodes[0]
+            const chat_side = getComputedStyle(node_with_css).flexDirection;
+
+            messages.push([node_above.innerText, chat_side])
+            count += 1;
+        }
+        messages.forEach(e =>
+        {
+            if (e[1] === 'row')
+            {
+                e[1] = 'flex-start'
+            }
+            else if (e[1] === 'row-reverse')
+            {
+                e[1] = 'flex-end'
+            }
+        })
+
         console.log(messages)
 
         GenerateChatHTML(messages)

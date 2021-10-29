@@ -17,7 +17,8 @@
         "content_script.js"
       ],
       "matches": [
-        "*://*.instagram.com/direct/*"
+        "*://*.instagram.com/direct/*",
+        "*://*.hellotalk.com/*"
       ],
       "run_at": "document_idle"
     }

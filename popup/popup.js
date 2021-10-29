@@ -44,7 +44,6 @@ function AddToDropDown(elementID)
 	chrome.storage.local.get(elementID, (stored) =>
 	{
 		var storedVal = stored[elementID];
-		console.log(storedVal)
 		for (var i = 0; i <= 10; i++)
 		{
 			var opt = document.createElement('option');
@@ -82,7 +81,6 @@ document.addEventListener("DOMContentLoaded", function ()
 			/* Then we get all the Field's for the selected Note type */
 			/*      dont change 'modelFieldNames' - this is for ankiconnect */
 			var model_Name_value = model_Name.value;
-			console.log("model_Name_value = ", model_Name_value)
 
 			fetchOptions('ankiFieldChatImage', url, 'modelFieldNames', { "modelName": model_Name_value })
 			fetchOptions('ankiSelectedMessage', url, 'modelFieldNames', { "modelName": model_Name_value })

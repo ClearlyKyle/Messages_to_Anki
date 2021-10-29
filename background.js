@@ -4,6 +4,7 @@ console.log("----- [backgound.js] LOADED");
 const showOnPages = [
 	"*://*.instagram.com/direct/*",
 	"*://*.whatsapp.com/*",
+	"*://*.hellotalk.com/*"
 ];
 
 function AddRightClickOption()
@@ -25,9 +26,9 @@ function AddRightClickOption()
 				{
 					message = "InstagramMessages"
 				}
-				else if (url.includes("whatsapp.com"))
+				else if (url.includes("web.hellotalk.com"))
 				{
-					message = "WhatsappMessages"
+					message = "HelloTalkMessages"
 				}
 				console.log("Sending message: " + message)
 				chrome.tabs.sendMessage(tabs[0].id, {
