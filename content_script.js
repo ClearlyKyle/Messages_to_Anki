@@ -46,8 +46,12 @@ function InstagramMessages()
         const number_of_messages_before = Number(stored["messagesBefore"]);
 
         let count = 0;
-        while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before && node_above.childElementCount > 1)
+        while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before)
         {
+            if (node_above.childNodes[1] === undefined || node_above.innerText === "")
+            {
+                continue
+            }
             const node_with_css = node_above.childNodes[1].children[0].children[0]
             const chat_side = getComputedStyle(node_with_css).alignSelf;
 
