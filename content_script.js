@@ -39,8 +39,6 @@ function InstagramMessages()
     const message_side = getComputedStyle(root_element.childNodes[1].children[0].children[0]).alignSelf;
 
     messages.push([message_current_text, message_side, selected_word])
-    console.log(messages)
-    console.log(selected_word)
 
     // loop through X number of messages before (up direction in chat)
     chrome.storage.local.get("messagesBefore", (stored) =>
