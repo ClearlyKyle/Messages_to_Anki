@@ -38,7 +38,9 @@ function InstagramMessages()
 
     const message_side = getComputedStyle(root_element.childNodes[1].children[0].children[0]).alignSelf;
 
-    messages.push([message_current_text, message_side])
+    messages.push([message_current_text, message_side, selected_word])
+    console.log(messages)
+    console.log(selected_word)
 
     // loop through X number of messages before (up direction in chat)
     chrome.storage.local.get("messagesBefore", (stored) =>
@@ -81,7 +83,7 @@ function HelloTalkMessages()
 
     const message_side = getComputedStyle(root_element.children[0]).flexDirection;
 
-    messages.push([message_current_text, message_side])
+    messages.push([message_current_text, message_side, selected_word])
 
     // loop through X number of messages before (up direction in chat)
     chrome.storage.local.get("messagesBefore", (stored) =>
@@ -203,8 +205,8 @@ function sendToAnki(messages, chat_message_HTML)
 {
     console.log("Sending to Anki...")
 
-    chrome.storage.local.get(['ankiDeckNameSelected', 'ankiNoteNameSelected', 'ankiFieldChatImage', 'ankiSelectedMessage', 'ankiConnectUrl'],
-        ({ ankiDeckNameSelected, ankiNoteNameSelected, ankiFieldChatImage, ankiSelectedMessage, ankiConnectUrl }) =>
+    chrome.storage.local.get(['ankiDeckNameSelected', 'ankiNoteNameSelected', 'ankiFieldChatImage', 'ankiSelectedMessage', 'ankiSelectedWord', 'ankiConnectUrl'],
+        ({ ankiDeckNameSelected, ankiNoteNameSelected, ankiFieldChatImage, ankiSelectedMessage, ankiSelectedWord, ankiConnectUrl }) =>
         {
             url = ankiConnectUrl || 'http://localhost:8765';
             model = ankiNoteNameSelected || 'Basic';
@@ -220,7 +222,8 @@ function sendToAnki(messages, chat_message_HTML)
 
             var fields = {
                 [ankiFieldChatImage]: chat_message_HTML,
-                [ankiSelectedMessage]: messages[0][0]
+                [ankiSelectedMessage]: messages[0][0],
+                [ankiSelectedWord]: messages[0][2]
             };
 
             console.log(fields)

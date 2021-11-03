@@ -84,12 +84,14 @@ document.addEventListener("DOMContentLoaded", function ()
 
 			fetchOptions('ankiFieldChatImage', url, 'modelFieldNames', { "modelName": model_Name_value })
 			fetchOptions('ankiSelectedMessage', url, 'modelFieldNames', { "modelName": model_Name_value })
+			fetchOptions('ankiSelectedWord', url, 'modelFieldNames', { "modelName": model_Name_value })
 
 			model_Name.addEventListener("change", function ()
 			{
 				var array = [
 					"ankiFieldChatImage",
 					"ankiSelectedMessage",
+					"ankiSelectedWord",
 				];
 
 				array.forEach((item) =>
@@ -110,6 +112,7 @@ document.addEventListener("DOMContentLoaded", function ()
 
 					saveOption('ankiFieldChatImage'),
 					saveOption('ankiSelectedMessage'),
+					saveOption('ankiSelectedWord'),
 
 					saveOption('messagesBefore'),
 					saveOption('messagesAfter')
