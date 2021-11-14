@@ -1,9 +1,16 @@
 /* This runs on all "youtube.com/watch" web pages */
 console.log("----- [content_script.js] LOADED");
 
-// TODO: Add success notification
-// TODO: add option for number of messages before and after selected
+// TODO: add option for number of messages before
 // TODO: remove flex tags for HTML construction, make messages pass in either left/right
+
+var tata_settings = {
+    position: "tr",
+    duration: 1000,
+    progress: false,
+    animation: 'slide',
+    holding: false
+}
 
 chrome.extension.onMessage.addListener(function (message, sender, callback)
 {
@@ -238,7 +245,10 @@ function sendToAnki(messages, chat_message_HTML)
                         "fields": fields,
                         "modelName": model,
                         "deckName": deck,
-                        "tags": ["Translator2Anki"]
+                        "tags": ["Translator2Anki"],
+                        "options": {
+                            "allowDuplicate": true,
+                        }
                     }
                 }
             };
@@ -256,7 +266,15 @@ function sendToAnki(messages, chat_message_HTML)
                 .then((res) => res.json())
                 .then((data) =>
                 {
+                    if (data.error !== null)
+                    {
+                        console.log("Permission Failed")
+                        console.log(data);
+                        return
+                    }
+                    console.log("Permission Granted")
                     console.log(data);
+
                     fetch(url, {
                         method: "POST",
                         body: JSON.stringify(body),
@@ -265,14 +283,56 @@ function sendToAnki(messages, chat_message_HTML)
                         .then((data) =>
                         {
                             console.log("Fetch Return:")
+                            console.log(data)
                             if (data.result === null)
                             {
-                                alert("Error!\n" + data.error)
+                                // https://jsfiddle.net/2qasgcfd/3/
+                                // https://github.com/apvarun/toastify-js
+                                Toastify({
+                                    text: "Error! " + data,
+                                    duration: 2000,
+                                    style: {
+                                        background: "red",
+                                    }
+                                }).showToast();
+                                return
                             }
-                            console.log("Sucess")
-                        }).catch((error) => console.log("EEROR! ", error));
-                })
-                .catch((error) => console.log("EEROR! ", error));
+                            else
+                            {
+                                /* show sucess message */
+                                Toastify({
+                                    text: "Sucessfully added to ANKI",
+                                    duration: 2000,
+                                    style: {
+                                        background: "light blue",
+                                    }
+                                }).showToast();
+                            }
+                        })
+                        .catch((error) =>
+                        {
+                            /* show error message */
+                            Toastify({
+                                text: "Error! " + error,
+                                duration: 2000,
+                                style: {
+                                    background: "red",
+                                }
+                            }).showToast();
+                        })
+                }).catch((error) =>
+                {
+                    /* show error message */
+                    Toastify({
+                        text: "Error! " + error,
+                        duration: 2000,
+                        style: {
+                            background: "red",
+                        }
+                    }).showToast();
+                    console.log(error)
+                });
             console.log("Sent to ANKI complete!\n");
-        });
+        }
+    );
 }
