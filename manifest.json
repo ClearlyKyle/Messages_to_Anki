@@ -5,6 +5,7 @@
   "version": "1.0",
   "author": "@clearlykyle",
   "permissions": [
+    "*://*.instagram.com/direct/*",
     "storage",
     "notifications",
     "contextMenus",
@@ -12,7 +13,6 @@
   ],
   "content_scripts": [
     {
-      "all_frames": true,
       "js": [
         "content_script.js",
         "resources/toastify.js"
@@ -24,7 +24,7 @@
         "*://*.instagram.com/direct/*",
         "*://*.hellotalk.com/*"
       ],
-      "run_at": "document_idle"
+      "run_at": "document_start"
     }
   ],
   "browser_action": {

@@ -4,14 +4,6 @@ console.log("----- [content_script.js] LOADED");
 // TODO: add option for number of messages before
 // TODO: remove flex tags for HTML construction, make messages pass in either left/right
 
-var tata_settings = {
-    position: "tr",
-    duration: 1000,
-    progress: false,
-    animation: 'slide',
-    holding: false
-}
-
 chrome.extension.onMessage.addListener(function (message, sender, callback)
 {
     if (message.functiontoInvoke == "InstagramMessages")
@@ -295,6 +287,8 @@ function sendToAnki(messages, chat_message_HTML)
                                         background: "red",
                                     }
                                 }).showToast();
+                                SendMessageToBackGround("Error! " + data)
+
                                 return
                             }
                             else
@@ -307,6 +301,8 @@ function sendToAnki(messages, chat_message_HTML)
                                         background: "light blue",
                                     }
                                 }).showToast();
+                                SendMessageToBackGround("Sucessfully added to ANKI")
+
                             }
                         })
                         .catch((error) =>
@@ -319,6 +315,7 @@ function sendToAnki(messages, chat_message_HTML)
                                     background: "red",
                                 }
                             }).showToast();
+                            SendMessageToBackGround("Error! " + error)
                         })
                 }).catch((error) =>
                 {
@@ -331,8 +328,20 @@ function sendToAnki(messages, chat_message_HTML)
                         }
                     }).showToast();
                     console.log(error)
+                    SendMessageToBackGround(error)
+
                 });
-            console.log("Sent to ANKI complete!\n");
+            console.log("Send to ANKI complete!\n");
+            SendMessageToBackGround("Send to ANKI complete!")
+
         }
     );
+}
+
+function SendMessageToBackGround(text)
+{
+    // send sucess message to background
+    chrome.runtime.sendMessage({
+        message: text
+    });
 }
