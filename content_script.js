@@ -54,7 +54,8 @@ function InstagramMessages()
             const node_with_css = node_above.childNodes[1].children[0].children[0]
             const chat_side = getComputedStyle(node_with_css).alignSelf;
 
-            messages.push([node_above.innerText, chat_side])
+            // remove the message likes which show a heart
+            messages.push([node_above.innerText.replace('\n❤️', ''), chat_side])
             count += 1;
         }
         console.log(messages)
@@ -97,7 +98,9 @@ function HelloTalkMessages()
             const node_with_css = node_above.childNodes[0]
             const chat_side = getComputedStyle(node_with_css).flexDirection;
 
-            messages.push([node_above.innerText, chat_side])
+            var message_text = node_above.innerText;
+
+            messages.push([message_text, chat_side])
             count += 1;
         }
         messages.forEach(e =>
