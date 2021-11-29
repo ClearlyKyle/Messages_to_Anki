@@ -28,7 +28,7 @@ function InstagramMessages()
 
     const parent_of_selected = selection.anchorNode.parentNode
     let message_current_text = parent_of_selected.innerText
-    message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word + "</b>");
+    message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word.toLowerCase() + "</b>");
 
     const root_element = parent_of_selected.parentNode.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
 
@@ -76,7 +76,7 @@ function HelloTalkMessages()
 
     const parent_of_selected = selection.anchorNode.parentNode
     let message_current_text = parent_of_selected.innerText
-    message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word + "</b>");
+    message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word.toLowerCase() + "</b>");
 
     const root_element = parent_of_selected.parentNode.parentElement.parentElement.parentElement;
 
