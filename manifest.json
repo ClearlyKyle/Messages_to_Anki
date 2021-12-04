@@ -21,10 +21,10 @@
         "resources/toastify.css"
       ],
       "matches": [
-        "*://*.instagram.com/direct/*",
+        "*://*.instagram.com/*",
         "*://*.hellotalk.com/*"
       ],
-      "run_at": "document_start"
+      "run_at": "document_idle"
     }
   ],
   "browser_action": {

@@ -4,128 +4,134 @@ console.log("----- [content_script.js] LOADED");
 // TODO: add option for number of messages before
 // TODO: remove flex tags for HTML construction, make messages pass in either left/right
 
-chrome.extension.onMessage.addListener(function (message, sender, callback)
+(function ()
 {
-    if (message.functiontoInvoke == "InstagramMessages")
+    //
+    // INSTAGRAM 
+    //
+    chrome.extension.onMessage.addListener(function (message, sender, callback)
     {
-        InstagramMessages();
-    }
-    else if (message.functiontoInvoke == "HelloTalkMessages")
-    {
-        HelloTalkMessages();
-    }
-});
-
-//
-// INSTAGRAM 
-//
-function InstagramMessages()
-{
-    console.log("\n[InstagramMessages] Start...")
-
-    const selection = window.getSelection()
-    const selected_word = selection.toString()
-
-    const parent_of_selected = selection.anchorNode.parentNode
-    let message_current_text = parent_of_selected.innerText
-    message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word.toLowerCase() + "</b>");
-
-    const root_element = parent_of_selected.parentNode.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
-
-    let messages = [];
-    let node_above = root_element
-
-    const message_side = getComputedStyle(root_element.childNodes[1].children[0].children[0]).alignSelf;
-
-    messages.push([message_current_text, message_side, selected_word])
-
-    // loop through X number of messages before (up direction in chat)
-    chrome.storage.local.get("messagesBefore", (stored) =>
-    {
-        const number_of_messages_before = Number(stored["messagesBefore"]);
-
-        let count = 0;
-        while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before)
+        if (message.functiontoInvoke == "InstagramMessages")
         {
-            if (node_above.childNodes[1] === undefined || node_above.innerText === "")
-            {
-                continue
-            }
-            const node_with_css = node_above.childNodes[1].children[0].children[0]
-            const chat_side = getComputedStyle(node_with_css).alignSelf;
-
-            // remove the message likes which show a heart
-            messages.push([node_above.innerText.replace('\n❤️', ''), chat_side])
-            count += 1;
+            InstagramMessages();
         }
-        console.log(messages)
-
-        GenerateChatHTML(messages)
-    })
-}
-
-//
-// HELLOTALK
-//
-function HelloTalkMessages()
-{
-    console.log("\n[HelloTalkMessages] Start...")
-
-    const selection = window.getSelection()
-    const selected_word = selection.toString()
-
-    const parent_of_selected = selection.anchorNode.parentNode
-    let message_current_text = parent_of_selected.innerText
-    message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word.toLowerCase() + "</b>");
-
-    const root_element = parent_of_selected.parentNode.parentElement.parentElement.parentElement;
-
-    let messages = [];
-    let node_above = root_element
-
-    const message_side = getComputedStyle(root_element.children[0]).flexDirection;
-
-    messages.push([message_current_text, message_side, selected_word])
-
-    // loop through X number of messages before (up direction in chat)
-    chrome.storage.local.get("messagesBefore", (stored) =>
-    {
-        const number_of_messages_before = Number(stored["messagesBefore"]);
-
-        let count = 0;
-        while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before)
+        else if (message.functiontoInvoke == "HelloTalkMessages")
         {
-            const node_with_css = node_above.childNodes[0]
-            const chat_side = getComputedStyle(node_with_css).flexDirection;
-
-            var message_text = node_above.innerText;
-
-            messages.push([message_text, chat_side])
-            count += 1;
+            HelloTalkMessages();
         }
-        messages.forEach(e =>
+    });
+    function InstagramMessages()
+    {
+        console.log("\n[InstagramMessages] Start...")
+
+        const selection = window.getSelection()
+        const selected_word = selection.toString()
+
+        const parent_of_selected = selection.anchorNode.parentNode
+        let message_current_text = parent_of_selected.innerText
+        message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word.toLowerCase() + "</b>");
+
+        const root_element = parent_of_selected.parentNode.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+
+        let messages = [];
+        let node_above = root_element
+
+        const message_side = getComputedStyle(root_element.childNodes[1].children[0].children[0]).alignSelf;
+
+        messages.push([message_current_text, message_side, selected_word])
+
+        // loop through X number of messages before (up direction in chat)
+        chrome.storage.local.get("messagesBefore", (stored) =>
         {
-            if (e[1] === 'row')
+            const number_of_messages_before = Number(stored["messagesBefore"]);
+
+            let count = 0;
+            while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before)
             {
-                e[1] = 'flex-start'
+                if (node_above.childNodes[1] === undefined || node_above.innerText === "")
+                {
+                    continue
+                }
+                const node_with_css = node_above.childNodes[1].children[0].children[0]
+                let chat_side = getComputedStyle(node_with_css).alignSelf;
+
+                // remove the message likes which show a heart
+                messages.push([node_above.innerText.replace('\n❤️', ''), chat_side])
+                count += 1;
             }
-            else if (e[1] === 'row-reverse')
+
+            // converting all flex adjustments to left and right
+            messages.forEach(element =>
             {
-                e[1] = 'flex-end'
-            }
+                if (element[1] === 'flex-start')
+                    element[1] = 'left'
+                else if (element[1] === 'flex-end')
+                    element[1] = 'right'
+            });
+            SendMessageToBackGround(messages)
+
+            GenerateChatHTML(messages)
         })
+    }
 
-        console.log(messages)
+    //
+    // HELLOTALK
+    //
+    function HelloTalkMessages()
+    {
+        console.log("\n[HelloTalkMessages] Start...")
 
-        GenerateChatHTML(messages)
-    })
-}
+        const selection = window.getSelection()
+        const selected_word = selection.toString()
 
-function GenerateChatHTML(saved_messages)
-{
-    console.log("[GenerateChatHTML] Start...")
+        const parent_of_selected = selection.anchorNode.parentNode
+        let message_current_text = parent_of_selected.innerText
+        message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word.toLowerCase() + "</b>");
 
-    var base_HTML = "<style>\
+        const root_element = parent_of_selected.parentNode.parentElement.parentElement.parentElement;
+
+        let messages = [];
+        let node_above = root_element
+
+        const message_side = getComputedStyle(root_element.children[0]).flexDirection;
+
+        messages.push([message_current_text, message_side, selected_word])
+
+        // loop through X number of messages before (up direction in chat)
+        chrome.storage.local.get("messagesBefore", (stored) =>
+        {
+            const number_of_messages_before = Number(stored["messagesBefore"]);
+
+            let count = 0;
+            while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before)
+            {
+                const node_with_css = node_above.childNodes[0]
+                const chat_side = getComputedStyle(node_with_css).flexDirection;
+
+                var message_text = node_above.innerText;
+
+                messages.push([message_text, chat_side])
+                count += 1;
+            }
+            messages.forEach(e =>
+            {
+                if (e[1] === 'row')
+                    e[1] = 'left'
+                else if (e[1] === 'row-reverse')
+                    e[1] = 'right'
+            })
+
+            console.log(messages)
+
+            GenerateChatHTML(messages)
+        })
+    }
+
+    function GenerateChatHTML(saved_messages)
+    {
+        console.log("[GenerateChatHTML] Start...")
+
+        var base_HTML = "<style>\
         .center {\
             width: 50%;\
             margin: 0 auto;\
@@ -177,174 +183,185 @@ function GenerateChatHTML(saved_messages)
             <div class=\"chat\">\
                 <div class=\"messages\" id=\"chat\">"
 
-    // left message  = 'flex-start'
-    // right message = 'flex-end'
-    //<div class="message right"></div>
-    //<div class="message left"></div>
+        // left message  = 'flex-start'
+        // right message = 'flex-end'
+        //<div class="message right"></div>
+        //<div class="message left"></div>
 
-    // add the messages in reverse order
-    for (var i = saved_messages.length - 1; i >= 0; i--)
-    {
-        if (saved_messages[i][1] === 'flex-start')
+        // add the messages in reverse order
+        for (var i = saved_messages.length - 1; i >= 0; i--)
         {
-            base_HTML += "<div class=\"message left\">" + saved_messages[i][0] + "</div>"
+            if (saved_messages[i][1] === 'left')
+            {
+                base_HTML += "<div class=\"message left\">" + saved_messages[i][0] + "</div>"
+            }
+            else if (saved_messages[i][1] === 'right')
+            {
+                base_HTML += "<div class=\"message right\">" + saved_messages[i][0] + "</div>"
+            }
         }
-        else if (saved_messages[i][1] === 'flex-end')
-        {
-            base_HTML += "<div class=\"message right\">" + saved_messages[i][0] + "</div>"
-        }
-    }
 
-    base_HTML += "</div>\
+        base_HTML += "</div>\
             </div>\
         </div>"
 
-    //console.log(base_HTML)
+        //console.log(base_HTML)
 
-    sendToAnki(saved_messages, base_HTML)
-}
+        sendToAnki(saved_messages, base_HTML)
+    }
 
 
-function sendToAnki(messages, chat_message_HTML)
-{
-    console.log("Sending to Anki...")
+    function sendToAnki(messages, chat_message_HTML)
+    {
+        console.log("Sending to Anki...")
 
-    chrome.storage.local.get(['ankiDeckNameSelected', 'ankiNoteNameSelected', 'ankiFieldChatImage', 'ankiSelectedMessage', 'ankiSelectedWord', 'ankiConnectUrl'],
-        ({ ankiDeckNameSelected, ankiNoteNameSelected, ankiFieldChatImage, ankiSelectedMessage, ankiSelectedWord, ankiConnectUrl }) =>
-        {
-            url = ankiConnectUrl || 'http://localhost:8765';
-            model = ankiNoteNameSelected || 'Basic';
-            deck = ankiDeckNameSelected || 'Default';
+        chrome.storage.local.get(['ankiDeckNameSelected', 'ankiNoteNameSelected', 'ankiFieldChatImage', 'ankiSelectedMessage', 'ankiSelectedWord', 'ankiConnectUrl'],
+            ({ ankiDeckNameSelected, ankiNoteNameSelected, ankiFieldChatImage, ankiSelectedMessage, ankiSelectedWord, ankiConnectUrl }) =>
+            {
+                url = ankiConnectUrl || 'http://localhost:8765';
+                model = ankiNoteNameSelected || 'Basic';
+                deck = ankiDeckNameSelected || 'Default';
 
-            console.log({
-                ankiDeckNameSelected,
-                ankiNoteNameSelected,
-                ankiFieldChatImage,
-                ankiSelectedMessage,
-                ankiConnectUrl
-            })
+                console.log({
+                    ankiDeckNameSelected,
+                    ankiNoteNameSelected,
+                    ankiFieldChatImage,
+                    ankiSelectedMessage,
+                    ankiConnectUrl
+                })
 
-            var fields = {
-                [ankiFieldChatImage]: chat_message_HTML,
-                [ankiSelectedMessage]: messages[0][0],
-                [ankiSelectedWord]: messages[0][2]
-            };
+                var fields = {
+                    [ankiFieldChatImage]: chat_message_HTML,
+                    [ankiSelectedMessage]: messages[0][0],
+                    [ankiSelectedWord]: messages[0][2]
+                };
 
-            console.log(fields)
+                console.log(fields)
 
-            var body = {
-                "action": "addNote",
-                "version": 5,
-                "params": {
-                    "note": {
-                        "fields": fields,
-                        "modelName": model,
-                        "deckName": deck,
-                        "tags": ["Translator2Anki"],
-                        "options": {
-                            "allowDuplicate": true,
+                var body = {
+                    "action": "addNote",
+                    "version": 5,
+                    "params": {
+                        "note": {
+                            "fields": fields,
+                            "modelName": model,
+                            "deckName": deck,
+                            "tags": ["Translator2Anki"],
+                            "options": {
+                                "allowDuplicate": true,
+                            }
                         }
                     }
-                }
-            };
-            var permission_data = {
-                "action": "requestPermission",
-                "version": 6,
-            };
+                };
+                var permission_data = {
+                    "action": "requestPermission",
+                    "version": 6,
+                };
 
-            console.log("Fetching...")
+                console.log("Fetching...")
 
-            fetch(url, {
-                method: "POST",
-                body: JSON.stringify(permission_data),
-            })
-                .then((res) => res.json())
-                .then((data) =>
-                {
-                    if (data.error !== null)
+                fetch(url, {
+                    method: "POST",
+                    body: JSON.stringify(permission_data),
+                })
+                    .then((res) => res.json())
+                    .then((data) =>
                     {
-                        console.log("Permission Failed")
-                        console.log(data);
-                        return
-                    }
-                    console.log("Permission Granted")
-                    console.log(data);
-
-                    fetch(url, {
-                        method: "POST",
-                        body: JSON.stringify(body),
-                    })
-                        .then((res) => res.json())
-                        .then((data) =>
+                        if (data.error !== null)
                         {
-                            console.log("Fetch Return:")
-                            console.log(data)
-                            if (data.result === null)
+                            console.log("Permission Failed")
+                            console.log(data);
+                            return
+                        }
+                        console.log("Permission Granted")
+                        console.log(data);
+
+                        fetch(url, {
+                            method: "POST",
+                            body: JSON.stringify(body),
+                        })
+                            .then((res) => res.json())
+                            .then((data) =>
                             {
-                                // https://jsfiddle.net/2qasgcfd/3/
-                                // https://github.com/apvarun/toastify-js
+                                console.log("Fetch Return:")
+                                console.log(data)
+                                if (data.result === null)
+                                {
+                                    // https://jsfiddle.net/2qasgcfd/3/
+                                    // https://github.com/apvarun/toastify-js
+                                    Toastify({
+                                        text: "Error! " + data,
+                                        duration: 2000,
+                                        style: {
+                                            background: "red",
+                                        }
+                                    }).showToast();
+                                    SendMessageToBackGround("Error! " + data)
+
+                                    return
+                                }
+                                else
+                                {
+                                    /* show sucess message */
+                                    Toastify({
+                                        text: "Sucessfully added to ANKI",
+                                        duration: 2000,
+                                        style: {
+                                            background: "light blue",
+                                        }
+                                    }).showToast();
+                                    SendMessageToBackGround("Sucessfully added to ANKI")
+
+                                }
+                            })
+                            .catch((error) =>
+                            {
+                                /* show error message */
                                 Toastify({
-                                    text: "Error! " + data,
+                                    text: "Error! " + error,
                                     duration: 2000,
                                     style: {
                                         background: "red",
                                     }
                                 }).showToast();
-                                SendMessageToBackGround("Error! " + data)
-
-                                return
+                                SendMessageToBackGround("Error! " + error)
+                            })
+                    }).catch((error) =>
+                    {
+                        /* show error message */
+                        Toastify({
+                            text: "Error! " + error,
+                            duration: 2000,
+                            style: {
+                                background: "red",
                             }
-                            else
-                            {
-                                /* show sucess message */
-                                Toastify({
-                                    text: "Sucessfully added to ANKI",
-                                    duration: 2000,
-                                    style: {
-                                        background: "light blue",
-                                    }
-                                }).showToast();
-                                SendMessageToBackGround("Sucessfully added to ANKI")
+                        }).showToast();
+                        console.log(error)
+                        SendMessageToBackGround(error)
 
-                            }
-                        })
-                        .catch((error) =>
-                        {
-                            /* show error message */
-                            Toastify({
-                                text: "Error! " + error,
-                                duration: 2000,
-                                style: {
-                                    background: "red",
-                                }
-                            }).showToast();
-                            SendMessageToBackGround("Error! " + error)
-                        })
-                }).catch((error) =>
-                {
-                    /* show error message */
-                    Toastify({
-                        text: "Error! " + error,
-                        duration: 2000,
-                        style: {
-                            background: "red",
-                        }
-                    }).showToast();
-                    console.log(error)
-                    SendMessageToBackGround(error)
+                    });
+                console.log("Send to ANKI complete!\n");
+                SendMessageToBackGround("Send to ANKI complete!")
 
-                });
-            console.log("Send to ANKI complete!\n");
-            SendMessageToBackGround("Send to ANKI complete!")
+            }
+        );
+    }
 
-        }
-    );
-}
+    function SendMessageToBackGround(text)
+    {
+        // send sucess message to background
+        chrome.runtime.sendMessage({
+            message: text
+        });
+    }
 
-function SendMessageToBackGround(text)
+})();
+
+chrome.runtime.sendMessage({
+    injectScript: true,
+    filename: 'content_script.js'
+}, function (response)
 {
-    // send sucess message to background
-    chrome.runtime.sendMessage({
-        message: text
-    });
-}
+    if (response.done)
+        console.log("Boom!")
+});

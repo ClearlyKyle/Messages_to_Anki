@@ -7,15 +7,21 @@ const showOnPages = [
 	"*://*.hellotalk.com/*"
 ];
 
-//Listen for when a Tab changes state
-//chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab)
-//{
-//	if (changeInfo && changeInfo.status == "complete")
-//	{
-//		const scripts = chrome.runtime.getManifest().content_scripts[0].js[0];
-//		chrome.tabs.executeScript(tabId, { file: scripts, runAt: 'document_start' });
-//	}
-//});
+chrome.tabs.onUpdated.addListener(function (message, sender, sendResponse)
+{
+	if (message.injectScript)
+	{
+		chrome.tabs.executeScript(sender.tab.id, {
+			file: message.filename
+		}, function ()
+		{
+			sendResponse({
+				done: true
+			});
+		});
+		return true; // Required for async sendResponse()
+	}
+});
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse)
 {
@@ -55,7 +61,5 @@ function AddRightClickOption()
 		documentUrlPatterns: showOnPages
 	}, () => { });
 }
-
-
 
 AddRightClickOption()
