@@ -2,7 +2,6 @@
 console.log("----- [content_script.js] LOADED");
 
 // TODO: add option for number of messages before
-// TODO: remove flex tags for HTML construction, make messages pass in either left/right
 
 (function ()
 {
@@ -356,12 +355,3 @@ console.log("----- [content_script.js] LOADED");
     }
 
 })();
-
-chrome.runtime.sendMessage({
-    injectScript: true,
-    filename: 'content_script.js'
-}, function (response)
-{
-    if (response.done)
-        console.log("Boom!")
-});

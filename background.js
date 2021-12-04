@@ -7,22 +7,6 @@ const showOnPages = [
 	"*://*.hellotalk.com/*"
 ];
 
-chrome.tabs.onUpdated.addListener(function (message, sender, sendResponse)
-{
-	if (message.injectScript)
-	{
-		chrome.tabs.executeScript(sender.tab.id, {
-			file: message.filename
-		}, function ()
-		{
-			sendResponse({
-				done: true
-			});
-		});
-		return true; // Required for async sendResponse()
-	}
-});
-
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse)
 {
 	console.log(request.message)
