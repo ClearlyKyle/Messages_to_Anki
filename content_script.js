@@ -28,7 +28,7 @@ console.log("----- [content_script.js] LOADED");
 
         const parent_of_selected = selection.anchorNode.parentNode
         let message_current_text = parent_of_selected.innerText
-        message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word.toLowerCase() + "</b>");
+        message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word + "</b>");
 
         const root_element = parent_of_selected.parentNode.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
 
@@ -37,7 +37,7 @@ console.log("----- [content_script.js] LOADED");
 
         const message_side = getComputedStyle(root_element.childNodes[1].children[0].children[0]).alignSelf;
 
-        messages.push([message_current_text, message_side, selected_word])
+        messages.push([message_current_text, message_side, selected_word.toLowerCase()])
 
         // loop through X number of messages before (up direction in chat)
         chrome.storage.local.get("messagesBefore", (stored) =>
@@ -85,7 +85,7 @@ console.log("----- [content_script.js] LOADED");
 
         const parent_of_selected = selection.anchorNode.parentNode
         let message_current_text = parent_of_selected.innerText
-        message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word.toLowerCase() + "</b>");
+        message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word + "</b>");
 
         const root_element = parent_of_selected.parentNode.parentElement.parentElement.parentElement;
 
@@ -94,7 +94,7 @@ console.log("----- [content_script.js] LOADED");
 
         const message_side = getComputedStyle(root_element.children[0]).flexDirection;
 
-        messages.push([message_current_text, message_side, selected_word])
+        messages.push([message_current_text, message_side, selected_word.toLocaleLowerCase()])
 
         // loop through X number of messages before (up direction in chat)
         chrome.storage.local.get("messagesBefore", (stored) =>
@@ -289,13 +289,13 @@ console.log("----- [content_script.js] LOADED");
                                     // https://jsfiddle.net/2qasgcfd/3/
                                     // https://github.com/apvarun/toastify-js
                                     Toastify({
-                                        text: "Error! " + data,
+                                        text: "Error! " + data.error,
                                         duration: 2000,
                                         style: {
                                             background: "red",
                                         }
                                     }).showToast();
-                                    SendMessageToBackGround("Error! " + data)
+                                    SendMessageToBackGround("Error! " + data.error)
 
                                     return
                                 }
@@ -317,26 +317,26 @@ console.log("----- [content_script.js] LOADED");
                             {
                                 /* show error message */
                                 Toastify({
-                                    text: "Error! " + error,
+                                    text: "Error! " + error.error,
                                     duration: 2000,
                                     style: {
                                         background: "red",
                                     }
                                 }).showToast();
-                                SendMessageToBackGround("Error! " + error)
+                                SendMessageToBackGround("Error! " + error.error)
                             })
                     }).catch((error) =>
                     {
                         /* show error message */
                         Toastify({
-                            text: "Error! " + error,
+                            text: "Error! " + error.error,
                             duration: 2000,
                             style: {
                                 background: "red",
                             }
                         }).showToast();
                         console.log(error)
-                        SendMessageToBackGround(error)
+                        SendMessageToBackGround(error.error)
 
                     });
                 console.log("Send to ANKI complete!\n");
