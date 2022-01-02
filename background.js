@@ -35,6 +35,10 @@ function AddRightClickOption()
 				{
 					message = "HelloTalkMessages"
 				}
+				else if (url.includes("web.whatsapp.com"))
+				{
+					message = "WhatsAppMessages"
+				}
 				console.log("Sending message: " + message)
 				chrome.tabs.sendMessage(tabs[0].id, {
 					"functiontoInvoke": message

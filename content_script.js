@@ -5,9 +5,6 @@ console.log("----- [content_script.js] LOADED");
 
 (function ()
 {
-    //
-    // INSTAGRAM 
-    //
     chrome.extension.onMessage.addListener(function (message, sender, callback)
     {
         if (message.functiontoInvoke == "InstagramMessages")
@@ -18,7 +15,14 @@ console.log("----- [content_script.js] LOADED");
         {
             HelloTalkMessages();
         }
+        else if (message.functiontoInvoke == "WhatsAppMessages")
+        {
+            WhatsAppMessages();
+        }
     });
+    //
+    // INSTAGRAM 
+    //
     function InstagramMessages()
     {
         console.log("\n[InstagramMessages] Start...")
@@ -121,6 +125,60 @@ console.log("----- [content_script.js] LOADED");
             })
 
             console.log(messages)
+
+            GenerateChatHTML(messages)
+        })
+    }
+
+    //
+    // WHATSAPP
+    //
+    function WhatsAppMessages()
+    {
+        console.log("\n[WhatsAppMessages] Start...")
+
+        const selection = window.getSelection()
+        const selected_word = selection.toString()
+
+        const parent_of_selected = selection.anchorNode.parentNode
+        let message_current_text = parent_of_selected.innerText
+        message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word + "</b>");
+
+        const root_element = parent_of_selected.parentNode.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+
+        let messages = [];
+        let node_above = root_element
+
+        const message_side = getComputedStyle(root_element).alignItems;
+
+        messages.push([message_current_text, message_side, selected_word.toLowerCase()])
+
+        // loop through X number of messages before (up direction in chat)
+        chrome.storage.local.get("messagesBefore", (stored) =>
+        {
+            const number_of_messages_before = Number(stored["messagesBefore"]);
+
+            let count = 0;
+            while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before)
+            {
+                // const node_with_css = node_above.childNodes[1].children[0].children[0]
+                const chat_side = getComputedStyle(node_above).alignItems;
+                const message_text = node_above.getElementsByClassName('copyable-text')[0].innerText;
+
+                // remove the message likes which show a heart
+                messages.push([message_text, chat_side])
+                count += 1;
+            }
+
+            // converting all flex adjustments to left and right
+            messages.forEach(element =>
+            {
+                if (element[1] === 'flex-start')
+                    element[1] = 'left'
+                else if (element[1] === 'flex-end')
+                    element[1] = 'right'
+            });
+            SendMessageToBackGround(messages)
 
             GenerateChatHTML(messages)
         })

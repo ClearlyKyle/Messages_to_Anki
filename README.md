@@ -5,7 +5,7 @@ Learn words in context by making flash cards from chat messages.
 Current works with:
 >HelloTalk<br>
 >Instagram<br>
-><del>WhatsApp<br>
+>WhatsApp<br>
 ><del>VK
 
 Make Anki flash cards with context from chat messages. 

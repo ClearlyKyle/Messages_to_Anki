@@ -22,7 +22,8 @@
       ],
       "matches": [
         "*://*.instagram.com/*",
-        "*://*.hellotalk.com/*"
+        "*://*.hellotalk.com/*",
+        "*://*.whatsapp.com/*"
       ],
       "run_at": "document_idle"
     }
