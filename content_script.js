@@ -31,35 +31,78 @@ console.log("----- [content_script.js] LOADED");
         const selected_word = selection.toString()
 
         const parent_of_selected = selection.anchorNode.parentNode
-        let message_current_text = parent_of_selected.innerText
-        message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word + "</b>");
-
         const root_element = parent_of_selected.parentNode.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
 
         let messages = [];
+        if (root_element.children[1].children.length > 1) // a message with a reply
+        {
+            // Get reply message
+            let message_reply = root_element.children[1].children[1].innerText;
+            message_reply = message_reply.replace(selected_word, "<b>" + selected_word + "</b>");
+
+            // Get message that was replied from
+            const message_replied_from = root_element.children[1].children[0].children[1].innerText;
+            const message_side = getComputedStyle(root_element.children[1].children[0]).alignItems;
+
+            messages.push([message_reply, message_side, selected_word.toLowerCase()])
+            messages.push([message_replied_from, message_side + " reply"])
+
+        } else 
+        {
+            const message_side = getComputedStyle(root_element.childNodes[1].children[0].children[0]).alignSelf;
+
+            let message_current_text = parent_of_selected.innerText
+            message_current_text = message_current_text.replace(selected_word, "<b>" + selected_word + "</b>");
+
+            messages.push([message_current_text, message_side, selected_word.toLowerCase()])
+        }
+
+        console.log("Selected word message")
+        console.log(messages)
+
         let node_above = root_element
-
-        const message_side = getComputedStyle(root_element.childNodes[1].children[0].children[0]).alignSelf;
-
-        messages.push([message_current_text, message_side, selected_word.toLowerCase()])
 
         // loop through X number of messages before (up direction in chat)
         chrome.storage.local.get("messagesBefore", (stored) =>
         {
             const number_of_messages_before = Number(stored["messagesBefore"]);
-
             let count = 0;
+
+            console.log("Number of messages to collect = ", number_of_messages_before);
+
             while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before)
             {
-                if (node_above.childNodes[1] === undefined || node_above.innerText === "")
-                {
-                    continue
-                }
-                const node_with_css = node_above.childNodes[1].children[0].children[0]
-                let chat_side = getComputedStyle(node_with_css).alignSelf;
+                console.log("Message to collect :")
+                console.log(node_above);
+                console.log(node_above.children[1].children.length);
 
-                // remove the message likes which show a heart
-                messages.push([node_above.innerText.replace('\n❤️', ''), chat_side])
+                if (node_above.childNodes[1] === undefined || node_above.innerText === "")
+                    continue
+
+                if (node_above.children[1].children.length > 1) // a message with a reply
+                {
+                    // Get reply message
+                    let message_reply = node_above.children[1].children[1].innerText;
+                    message_reply = message_reply.replace('Like\nCopy\nReport\n', '');
+
+                    // Get message that was replied from
+                    const message_replied_from = node_above.children[1].children[0].children[1].innerText;
+                    const message_side = getComputedStyle(node_above.children[1].children[0]).alignItems;
+
+                    console.log(message_reply)
+                    console.log(message_replied_from)
+
+                    messages.push([message_reply.replace('\n❤️', ''), message_side])
+                    messages.push([message_replied_from, message_side + " reply"])
+
+                } else 
+                {
+                    const message_side = getComputedStyle(node_above.childNodes[1].children[0].children[0]).alignSelf;
+                    console.log(node_above.innerText)
+
+                    messages.push([node_above.innerText.replace('\n❤️', ''), message_side])
+                }
+
                 count += 1;
             }
 
@@ -68,10 +111,14 @@ console.log("----- [content_script.js] LOADED");
             {
                 if (element[1] === 'flex-start')
                     element[1] = 'left'
+                else if (element[1] === 'flex-start reply')
+                    element[1] = 'left reply'
                 else if (element[1] === 'flex-end')
                     element[1] = 'right'
             });
+
             SendMessageToBackGround(messages)
+            console.log(messages)
 
             GenerateChatHTML(messages)
         })
@@ -235,6 +282,22 @@ console.log("----- [content_script.js] LOADED");
             background: #333;\
             color: white;\
         }\
+        .chat .messages .message.left.replymessage {\
+            font-size: 0.7rem;\
+            box-sizing: border-box;\
+            /* padding: top/bottom left/right */\
+            padding: 0.1rem 1rem;\
+            /* margin: top right bottom left */\
+            margin: 1rem 1rem -0.8rem 2.5rem;\
+            background: #ffF;\
+            border-radius: 1.125rem 1.125rem 1.125rem 1.125rem;\
+            min-height: 1.25rem;\
+            width: -webkit-fit-content;\
+            width: -moz-fit-content;\
+            width: fit-content;\
+            max-width: 50%;\
+            box-shadow: 0 0 2rem rgba(0, 0, 0, 0.075), 0rem 1rem 1rem -1rem rgba(0, 0, 0, 0.1);\
+        }\
     </style>\
         <div class=\"center\">\
             <div class=\"chat\">\
@@ -251,6 +314,10 @@ console.log("----- [content_script.js] LOADED");
             if (saved_messages[i][1] === 'left')
             {
                 base_HTML += "<div class=\"message left\">" + saved_messages[i][0] + "</div>"
+            }
+            else if (saved_messages[i][1] === 'left reply')
+            {
+                base_HTML += "<div class=\"message left replymessage\">" + saved_messages[i][0] + "</div>"
             }
             else if (saved_messages[i][1] === 'right')
             {
