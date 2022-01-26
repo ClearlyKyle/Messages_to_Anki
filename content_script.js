@@ -72,12 +72,12 @@ console.log("----- [content_script.js] LOADED");
 
             while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before)
             {
+                if (node_above.childNodes[1] === undefined || node_above.innerText === "")
+                    continue
+
                 console.log("Message to collect :")
                 console.log(node_above);
                 console.log(node_above.children[1].children.length);
-
-                if (node_above.childNodes[1] === undefined || node_above.innerText === "")
-                    continue
 
                 if (node_above.children[1].children.length > 1) // a message with a reply
                 {
@@ -89,8 +89,8 @@ console.log("----- [content_script.js] LOADED");
                     const message_replied_from = node_above.children[1].children[0].children[1].innerText;
                     const message_side = getComputedStyle(node_above.children[1].children[0]).alignItems;
 
-                    console.log(message_reply)
-                    console.log(message_replied_from)
+                    console.log({ message_reply })
+                    console.log({ message_replied_from })
 
                     messages.push([message_reply.replace('\n❤️', ''), message_side])
                     messages.push([message_replied_from, message_side + " reply"])
@@ -98,9 +98,15 @@ console.log("----- [content_script.js] LOADED");
                 } else 
                 {
                     const message_side = getComputedStyle(node_above.childNodes[1].children[0].children[0]).alignSelf;
-                    console.log(node_above.innerText)
+                    const message_text = node_above.innerText;
 
-                    messages.push([node_above.innerText.replace('\n❤️', ''), message_side])
+                    if (message_text === '❤️')// Possible "liked" gif
+                        continue;
+
+                    console.log({ message_text })
+                    console.log({ message_side })
+
+                    messages.push([message_text.replace('\n❤️', ''), message_side])
                 }
 
                 count += 1;
@@ -111,13 +117,14 @@ console.log("----- [content_script.js] LOADED");
             {
                 if (element[1] === 'flex-start')
                     element[1] = 'left'
-                else if (element[1] === 'flex-start reply')
-                    element[1] = 'left reply'
                 else if (element[1] === 'flex-end')
                     element[1] = 'right'
+                else if (element[1] === 'flex-start reply')
+                    element[1] = 'left reply'
             });
 
             SendMessageToBackGround(messages)
+            console.log("Completed all messages..")
             console.log(messages)
 
             GenerateChatHTML(messages)
