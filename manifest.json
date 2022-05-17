@@ -1,41 +1,40 @@
 {
-  "manifest_version": 2,
-  "name": "Messages to Anki",
-  "description": "Create Anki cards with messages from chat systems",
-  "version": "1.0",
-  "author": "@clearlykyle",
-  "permissions": [
-    "*://*.instagram.com/direct/*",
-    "storage",
-    "notifications",
-    "contextMenus",
-    "tabs"
-  ],
-  "content_scripts": [
-    {
-      "js": [
-        "content_script.js",
-        "resources/toastify.js"
-      ],
-      "css": [
-        "resources/toastify.css"
-      ],
-      "matches": [
-        "*://*.instagram.com/*",
-        "*://*.hellotalk.com/*",
-        "*://*.whatsapp.com/*"
-      ],
-      "run_at": "document_idle"
-    }
-  ],
-  "browser_action": {
-    "default_title": "Messages to Anki",
-    "default_popup": "popup/popup.html"
-  },
-  "background": {
-    "scripts": [
-      "background.js"
+    "manifest_version": 3,
+    "name": "Messages to Anki",
+    "description": "Create Anki cards with messages from chat systems",
+    "version": "1.0",
+    "author": "@clearlykyle",
+    "host_permissions": [
+        "*://*.instagram.com/direct/*"
     ],
-    "persistent": true
-  }
+    "permissions": [
+        "storage",
+        "notifications",
+        "contextMenus",
+        "tabs"
+    ],
+    "content_scripts": [
+        {
+            "js": [
+                "content_script.js",
+                "resources/toastify.js"
+            ],
+            "css": [
+                "resources/toastify.css"
+            ],
+            "matches": [
+                "*://*.instagram.com/*",
+                "*://*.hellotalk.com/*",
+                "*://*.whatsapp.com/*"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "action": {
+        "default_title": "Messages to Anki",
+        "default_popup": "popup/popup.html"
+    },
+    "background": {
+        "service_worker": "background.js"
+    }
 }
