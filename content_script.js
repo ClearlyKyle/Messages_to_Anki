@@ -5,7 +5,7 @@ console.log("----- [content_script.js] LOADED");
 
 (function ()
 {
-    chrome.extension.onMessage.addListener(function (message, sender, callback)
+    chrome.runtime.onMessage.addListener(function (message, sender, callback)
     {
         if (message.functiontoInvoke == "InstagramMessages")
         {
@@ -19,6 +19,7 @@ console.log("----- [content_script.js] LOADED");
         {
             WhatsAppMessages();
         }
+        return true; // Inform Chrome that we will make a delayed sendResponse
     });
     //
     // INSTAGRAM 
