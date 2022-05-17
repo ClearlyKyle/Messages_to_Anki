@@ -4,9 +4,11 @@
     "description": "Create Anki cards with messages from chat systems",
     "version": "1.0",
     "author": "@clearlykyle",
-    "host_permissions": [
-        "*://*.instagram.com/direct/*"
-    ],
+    "icons": {
+        "16": "icons/16x16.png",
+        "48": "icons/48x48.png",
+        "128": "icons/128x128.png"
+    },
     "permissions": [
         "storage",
         "notifications",
@@ -23,9 +25,9 @@
                 "resources/toastify.css"
             ],
             "matches": [
-                "*://*.instagram.com/*",
-                "*://*.hellotalk.com/*",
-                "*://*.whatsapp.com/*"
+                "https://*.instagram.com/*",
+                "https://*.hellotalk.com/*",
+                "https://*.whatsapp.com/*"
             ],
             "run_at": "document_idle"
         }
