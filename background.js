@@ -52,19 +52,6 @@ function AddRightClickOption()
             });
         }
     });
-
-    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs =>
-    {
-        let url = tabs[0].url;
-        if (url.includes("web.telegram.org/k"))
-        {
-            console.log("Setting up Telegram")
-            message = "TelegramMessages"
-            chrome.tabs.sendMessage(tab.id, {
-                "functiontoInvoke": message
-            });
-        }
-    });
 }
 
 AddRightClickOption()
