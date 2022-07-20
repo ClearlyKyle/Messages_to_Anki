@@ -27,7 +27,8 @@
             "matches": [
                 "https://*.instagram.com/*",
                 "https://*.hellotalk.com/*",
-                "https://*.whatsapp.com/*"
+                "https://*.whatsapp.com/*",
+                "https://*.telegram.org/*"
             ],
             "run_at": "document_idle"
         }

@@ -5,6 +5,11 @@ console.log("----- [content_script.js] LOADED");
 
 (function ()
 {
+    if (window.location.href.includes("web.telegram.org/k"))
+    {
+        TelegramMessages();
+    }
+
     chrome.runtime.onMessage.addListener(function (message, sender, callback)
     {
         if (message.functiontoInvoke == "InstagramMessages")
@@ -19,8 +24,13 @@ console.log("----- [content_script.js] LOADED");
         {
             WhatsAppMessages();
         }
+        else if (message.functiontoInvoke == "TelegramMessages")
+        {
+            TelegramMessages();
+        }
         return true; // Inform Chrome that we will make a delayed sendResponse
     });
+
     //
     // INSTAGRAM 
     //
@@ -237,6 +247,47 @@ console.log("----- [content_script.js] LOADED");
 
             GenerateChatHTML(messages)
         })
+    }
+
+    //
+    // TELEGRAM
+    //
+    function TelegramMessages()
+    {
+        SendMessageToBackGround("[TelegramMessages] Start...")
+
+        var check_chat_active = setInterval(function ()
+        {
+            if (document.querySelector('.chat.tabs-tab.active') != null)
+            {
+                clearInterval(check_chat_active)
+
+                var popup_menu_observer = new MutationObserver(function (mutations)
+                {
+                    console.log("Mutation start...")
+                    for (let mutation of mutations)
+                    {
+                        if (mutation.addedNodes.length > 0)
+                            if (mutation.addedNodes[0].className == 'btn-menu-overlay')
+                            {
+                                console.log("Adding click option")
+
+                                const btn_menu = document.getElementsByClassName('btn-menu contextmenu')[0];
+                                btn_menu.innerHTML += `<div class="btn-menu-item rp-overflow tgico-pin""><span class="i18n btn-menu-item-text">Send to Anki</span></div>`;
+
+                                SendMessageToBackGround("[TelegramMessages] Anki option has been added")
+                            }
+                    }
+                    console.log("Mutation end...")
+
+                });
+                popup_menu_observer.observe(document.getElementsByClassName('chat tabs-tab active')[0],
+                    {
+                        childList: true
+                    }
+                );
+            }
+        }, 100);
     }
 
     function GenerateChatHTML(saved_messages)
