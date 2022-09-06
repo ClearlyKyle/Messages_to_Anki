@@ -139,6 +139,8 @@ console.log("----- [content_script.js] LOADED");
             console.log(messages)
 
             GenerateChatHTML(messages)
+
+            return true;
         })
     }
 
@@ -173,6 +175,9 @@ console.log("----- [content_script.js] LOADED");
             let count = 0;
             while ((node_above = node_above.previousSibling) !== null && count !== number_of_messages_before)
             {
+                if (node_above.previousElementSibling.className.includes('loading-box')) // Check if it is the top message and cannot go back any further
+                    break;
+
                 const node_with_css = node_above.childNodes[0]
                 const chat_side = getComputedStyle(node_with_css).flexDirection;
 
@@ -526,6 +531,7 @@ console.log("----- [content_script.js] LOADED");
                 console.log("Send to ANKI complete!\n");
                 SendMessageToBackGround("Send to ANKI complete!")
 
+                return true;
             }
         );
     }

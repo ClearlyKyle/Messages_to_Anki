@@ -26,7 +26,7 @@
             ],
             "matches": [
                 "https://*.instagram.com/*",
-                "https://*.hellotalk.com/*",
+                "https://*.hellotalk.net/*",
                 "https://*.whatsapp.com/*",
                 "https://*.telegram.org/*"
             ],

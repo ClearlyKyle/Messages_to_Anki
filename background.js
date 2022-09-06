@@ -22,10 +22,12 @@ function AddRightClickOption()
             documentUrlPatterns: [
                 "*://*.instagram.com/direct/*",
                 "*://*.whatsapp.com/*",
-                "*://*.hellotalk.com/*",
+                "*://*.hellotalk.net/*",
                 "*://*.telegram.org/k/*",
             ]
         });
+
+        return true;
     });
 
     chrome.contextMenus.onClicked.addListener(function (info, tab)
@@ -38,7 +40,7 @@ function AddRightClickOption()
             {
                 message = "InstagramMessages"
             }
-            else if (url.includes("web.hellotalk.com"))
+            else if (url.includes("web.hellotalk.net"))
             {
                 message = "HelloTalkMessages"
             }
@@ -51,7 +53,11 @@ function AddRightClickOption()
                 "functiontoInvoke": message
             });
         }
+
+        return true;
     });
+
+    return true;
 }
 
 AddRightClickOption()
